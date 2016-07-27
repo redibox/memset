@@ -82,7 +82,7 @@ export default class MemSet extends BaseHook {
         throw new Error(`The 'runs' property for set '${set.key}' is invalid or global function was not found!`);
       }
 
-      const possiblePromise = handler(set);
+      const possiblePromise = handler(set, this.data, this.core);
 
       if (!possiblePromise.then) {
         this.setData(set.key, possiblePromise, set.immutable);
