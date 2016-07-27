@@ -85,12 +85,12 @@ export default class MemSet extends BaseHook {
       const possiblePromise = handler(set);
 
       if (!possiblePromise.then) {
-        this.setData(set.key, possiblePromise);
+        this.setData(set.key, possiblePromise, set.immutable);
         return resolve();
       }
 
       return possiblePromise.then((data) => {
-        this.setData(set.key, data);
+        this.setData(set.key, data, set.immutable);
         return resolve();
       }).catch(reject);
     }), set.cacheLifeTime).catch(err => this.log.error(err));
@@ -100,9 +100,10 @@ export default class MemSet extends BaseHook {
    *
    * @param key
    * @param data
+   * @param immutable
    */
-  setData(key, data) {
-    this.data[key] = immutableFromJS(data);
+  setData(key, data, immutable) {
+    this.data[key] = immutable ? immutableFromJS(data) : data;
     this.timestamp[key] = new Date();
   }
 
