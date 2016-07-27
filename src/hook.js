@@ -5,7 +5,6 @@ import { fromJS as immutableFromJS } from 'immutable';
 import {
   BaseHook,
   deepGet,
-  getTimeStamp,
   isFunction,
   isObject,
   tryJSONStringify,
