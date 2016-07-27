@@ -1,7 +1,7 @@
 {
   "name": "redibox-hook-memset",
   "description": "Synchronised data sets stored in memory across all servers - for quick synchronous access to data that is commonly used but not likely to update frequently.",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "lib/index.js",
   "author": "Mike Diarmid",
   "repository": {
