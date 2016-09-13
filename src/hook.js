@@ -46,7 +46,7 @@ export default class MemSet extends BaseHook {
 
     for (let i = 0, len = this.options.sets.length; i < len; i++) {
       const set = this.options.sets[i];
-      this.options.laterSchedules[i] = later.parse.text(set.refreshInterval);
+      this.options.laterSchedules[i] = later.parse.text(set.refreshInterval || set.interval);
       this.options.sets[i].cacheLifeTime = MemSet.getCacheSeconds(this.options.laterSchedules[i]);
       this.options.laterTimers[i] = later.setInterval(
         this.updateSet.bind(this, i),
