@@ -66,10 +66,9 @@ sets: [{
   key: 'cars',
   runs: function(set, sets) {
     // Return a promise or data
-    return Cars
-      .find({
-        manufacturer: sets.carManufacturers,
-      });
+    return Cars.find({
+      manufacturer: sets.carManufacturers,
+    });
   },
   interval: 'every 2 minutes',
 }, {
