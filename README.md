@@ -25,12 +25,12 @@ Within your `redibox` config, we'll setup a new `memset` object containing a `se
 
 - **key**: A name in which the data will be stored under and accessed within Memset.
 - **runs**: A function or string (which returns a function) of the data to store. This must return a promise or data.
-- **refreshInterval**: A string of the update time, compatible with (Later)(https://bunkat.github.io/later/parsers.html#text).
+- **refreshInterval**: A string of the update time, compatible with (Later)(https://bunkat.github.io/later/parsers.html#text). Internally this uses [Schedule](https://github.com/redibox/schedule).
 
 ```
 {
     memset: {
-        sets: [
+        sets: [{
             key: 'categories',
             runs: function() {
               // Return a promise or data
@@ -38,12 +38,14 @@ Within your `redibox` config, we'll setup a new `memset` object containing a `se
                 .find({ active: true });
             },
             refreshInterval: 'every 5 minutes',
-        ]
+        }]
     }
 }
 ```
 
 #### Accessing Memset data
+
+When your application boots, all of the sets are run, no matter what the `refreshInterval`. This means your data is accessible at all times.
 
 Very simply access the data by key name:
 
@@ -53,6 +55,34 @@ const categories = RediBox.hooks.memset.categories;
 // With Sails hook
 const categories = Memset.categories;
 ```
+
+### Gotchas
+
+If your sets require other Memset data to run, bear in mind, on boot the sets run in order synchronously. For example:
+
+**Broken Example:**
+```
+sets: [{
+    key: 'cars',
+    runs: function() {
+      // Return a promise or data
+      return Cars
+        .find({ 
+          manufacturer: RediBox.hooks.memset.carManufacturers,
+        });
+    },
+    refreshInterval: 'every 2 minutes',
+}, {
+    key: 'carManufacturers',
+    runs: function() {
+      // Return a promise or data
+      return CarManufacturers.find({ active: true });
+    },
+    refreshInterval: 'every 5 minutes',
+}]
+```
+
+This won't work because on boot, the `carManufacturers` data hasn't been set. To fix this, the `carManufacturers` would need to come before `cars`.
 
 ### Memset vs Cache
 
