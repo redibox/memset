@@ -7,11 +7,31 @@
 
 ## RediBox Memset
 
-Memset is a synchronous access in-memory cache tool. The main difference between Memset and [Cache](https://github.com/redibox/cache) is that Cache sets and returns data from specified triggers directly from Redis, whereas Memset consistently provides cached data from memory which is set via scheduled [Jobs](https://github.com/redibox/job).
+Memset is a persistent, in memory and self updating cache tool. The main difference between Memset and [Cache](https://github.com/redibox/cache) is that Cache sets and returns data from specified triggers directly from Redis, whereas Memset consistently provides cached data from memory which is set via scheduled [Jobs](https://github.com/redibox/job).
+
+### When to use Memset
+
+You should consider using Memset when:
+
+- You have persistent data that doesn't need updating on demand
+- You always need certain data available quickly
+
+### Example
+
+#### Without Memset
+
+You have a large database of products that is cached on your server. When you add a new product, one user will trigger the purge of the cache by hitting the newly changed URL - that user will then be stuck with a loading message whilst the whole cache rebuilds, this could be anything upto and beyond a minute. By that time your user has dropped already left the app.
+
+#### With Memset
+
+You have a large database of products that is stored using Memset. When you add a new product, the Job that checks for new changes will run at it's predetermined interval and add the new product to the Memset data, the user will then simply see a new product on their screen. There's interuption for any of the users.
+
+Find out more about [Jobs](https://github.com/redibox/job).
+
 
 ### Installation
 
-First ensure you have [RediBox](https://github.com/redibox/core) install.
+Firstly, ensure you have [RediBox](https://github.com/redibox/core) installed.
 
 Install Memset via npm:
 
@@ -42,9 +62,9 @@ Within your `redibox` config, we'll setup a new `memset` object containing a `se
 }
 ````
 
-#### Accessing Memset data
+#### Accessing Memset Data
 
-When your application boots, all of the sets are run, no matter what the `interval`. This means your data is accessible at all times.
+When your application boots - all of the sets are run, no matter what the `interval`. This means your data is accessible at all times.
 
 Very simply access the data by key name:
 
@@ -58,30 +78,57 @@ const categories = Memset.categories;
 
 ### Gotchas
 
-If your sets require other Memset data to run, bear in mind that on boot the sets run in order synchronously. For example:
+If your sets require other Memset data to run, keep in mind that on boot the sets run in the order provided in the array. For example:
 
 **Broken Example:**
 ```javascript
-sets: [{
-  key: 'cars',
-  runs: function(set, sets) {
-    // Return a promise or data
-    return Cars.find({
-      manufacturer: sets.carManufacturers,
-    });
-  },
-  interval: 'every 2 minutes',
-}, {
-  key: 'carManufacturers',
-  runs: function(set, sets) {
-    // Return a promise or data
-    return CarManufacturers.find({ active: true });
-  },
-  interval: 'every 5 minutes',
-}]
+sets: [
+  {
+    key: 'cars',
+    runs: function(set, sets) {
+      // Return a promise or data
+      return Cars.find({
+        manufacturer: sets.carManufacturers,
+      });
+    },
+    interval: 'every 2 minutes',
+  }, {
+    key: 'carManufacturers',
+    runs: function(set, sets) {
+      // Return a promise or data
+      return CarManufacturers.find({ active: true });
+    },
+    interval: 'every 5 minutes',
+  }
+]
 ```
 
 This won't work because on boot, the `carManufacturers` data hasn't been set. To fix this, the `carManufacturers` would need to come before `cars`.
+
+**Working example:**
+```javascript
+sets: [
+  {
+    key: 'carManufacturers',
+    runs: function(set, sets) {
+      // Return a promise or data
+      return CarManufacturers.find({ active: true });
+    },
+    interval: 'every 5 minutes',
+  }, {
+    key: 'cars',
+    runs: function(set, sets) {
+      // Return a promise or data
+      return Cars.find({
+        manufacturer: sets.carManufacturers,
+      });
+    },
+    interval: 'every 2 minutes',
+  },
+]
+```
+
+This will now function as expected because 'Cars' can now access to the data previously created by CarManufacturers.
 
 ### Memset vs Cache
 
@@ -89,7 +136,7 @@ Before diving into Memset, you should first understand when to use Memset over t
 
 Memset should be used for common top level datasets which are accessed across your application, which is not likely to frequently update. Cache should be used for low level specific datasets which are less likely to be accessed and frequently need updating.
 
-**Example**: Imagine a online shopping website, where users are able to browse for products via category, view a single product and login to our website. The website contains around 100 categories and thousands of products.
+**Example**: Imagine an online shopping website, where users are able to browse for products via category, view a single product and login to our website. The website contains around 100 categories and thousands of products.
 
 Memset:
 
