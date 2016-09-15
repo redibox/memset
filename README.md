@@ -20,11 +20,11 @@ You should consider using Memset when:
 
 #### Without Memset
 
-You have a large database of products that is cached on your server. When you add a new product, one user will trigger the purge of the cache by hitting the newly changed URL - that user will then be stuck with a loading message whilst the whole cache rebuilds, this could be anything upto and beyond a minute. By that time your user has dropped already left the app.
+You have a large database of products that is cached on your server. When you add a new product, one user will trigger the purge of the cache by hitting the newly changed URL - that user will then be stuck with a loading message whilst the whole cache rebuilds, this could be anything upto and beyond a minute. By that time your user has already left the app.
 
 #### With Memset
 
-You have a large database of products that is stored using Memset. When you add a new product, the Job that checks for new changes will run at it's predetermined interval and add the new product to the Memset data, the user will then simply see a new product on their screen. There's interuption for any of the users.
+You have a large database of products that is stored using Memset. When you add a new product, the Job that checks for new changes will run at it's predetermined interval and add the new product to the Memset data, the user will then simply see a new product on their screen. There's no interuption for any of the users.
 
 Find out more about [Jobs](https://github.com/redibox/job).
 
