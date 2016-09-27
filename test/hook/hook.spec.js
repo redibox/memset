@@ -1,35 +1,56 @@
 /* eslint no-underscore-dangle: 0 */
-import { assert } from 'chai';
-import RediBox from 'redibox';
-import Hook from './../../src/hook';
+import { assert, expect } from 'chai';
 
-describe('core', () => {
-  it('Should extend redibox hook class and provide an emitter', (done) => {
-    const hook = new Hook();
-    const protoName = Object.getPrototypeOf(Hook).name;
-    assert.equal(protoName, 'BaseHook', `Hook should extend 'Hook' but it extends '${protoName}'`);
-    assert.isDefined(hook.on);
-    assert.isDefined(hook.emit);
-    done();
-  });
-
+describe('Core', () => {
   it('Should extend redibox BaseHook class and provide a name property', (done) => {
-    const hook = new Hook();
-    assert.isDefined(hook.name);
-    assert.equal(global.HOOK_NAME, hook.name);
+    assert.isDefined(Hook.name);
+    assert.equal(global.HOOK_NAME, Hook.name);
     done();
   });
 
-  it(`Should mount to core.${global.HOOK_NAME}`, (done) => {
-    const config = { hooks: {} };
-    config.hooks[global.HOOK_NAME] = Hook;
-    const redibox = new RediBox(config, () => {
-      assert.isTrue(redibox.hooks.hasOwnProperty(global.HOOK_NAME));
-      redibox.disconnect();
-      done();
-    });
-    redibox.on('error', (e) => {
-      console.error(e);
-    });
+  it('Hook memset should mount to core.', (done) => {
+    assert.isTrue(RediBox.hooks.hasOwnProperty(global.HOOK_NAME));
+    done();
   });
 });
+
+describe('Memset', () => {
+  it('Should return a string', (done) => {
+    const value = Hook.string;
+
+    expect(value).to.be.a('string');
+    expect(value).to.equal('foo');
+    done();
+  });
+
+  it('Should return an object', (done) => {
+    const value = Hook.object;
+
+    expect(value).to.be.a('object');
+    expect(value).to.have.property('foo');
+    expect(value.foo).to.equal('bar');
+    done();
+  });
+
+  it('Should return a number', (done) => {
+    const value = Hook.number;
+
+    expect(value).to.be.a('number');
+    expect(value).to.equal(1337);
+    done();
+  });
+
+  it('Should return an array', (done) => {
+    const value = Hook.array;
+
+    expect(value).to.be.a('array');
+    expect(value).to.have.length(3);
+    expect(value[0]).to.equal('foo');
+    expect(value[1]).to.equal('bar');
+    expect(value[2]).to.be.a('function');
+    expect(value[2]()).to.equal('baz');
+    done();
+  });
+});
+
+

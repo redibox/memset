@@ -27,6 +27,10 @@ export default class MemSet extends BaseHook {
         if (name in target.data) {
           return target.data[name];
         }
+        //
+        // if (name === 'by' && isFunction(name)) {
+        //
+        // }
 
         // Fixes issue in chrome debugger & jam3/devtool
         if (name === 'inspect') return undefined;
