@@ -47,6 +47,9 @@ export default class MemSet extends BaseHook {
     for (let i = 0, len = this.options.sets.length; i < len; i++) {
       const set = this.options.sets[i];
       this.options.laterSchedules[i] = later.parse.text(set.refreshInterval || set.interval);
+      if (this.options.laterSchedules[i].error !== -1) {
+        return Promise.reject(`Interval "${set.refreshInterval || set.interval}" is invalid (error code ${this.options.laterSchedules[i].error}). See Later.js docs for valid formats: https://bunkat.github.io/later/parsers.html#text`);
+      }
       this.options.sets[i].cacheLifeTime = MemSet.getCacheSeconds(this.options.laterSchedules[i]);
       this.options.laterTimers[i] = later.setInterval(
         this.updateSet.bind(this, i),
