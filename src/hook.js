@@ -149,12 +149,12 @@ class MemSet extends BaseHook {
         return value;
       }
       return promise.then ? promise : promise();
-    }).then(value => {
-        return Promise.all([
-          Promise.resolve(value),
-          !foundCache && value ? this.set(key, value, ttl) : Promise.resolve(),
-        ])
-    }).then(results => results[0]);
+    }).then(value =>
+      Promise.all([
+        Promise.resolve(value),
+        !foundCache && value ? this.set(key, value, ttl) : Promise.resolve(),
+      ])
+    ).then(results => results[0]);
   }
 
   /**

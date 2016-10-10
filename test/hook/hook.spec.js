@@ -92,7 +92,6 @@ describe('Memset', () => {
     setInterval(getValue, 1000);
     getValue();
   });
-
 });
 
 
