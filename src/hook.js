@@ -1,17 +1,10 @@
-import later from 'later';
-import defaults from './defaults';
-import Promise from 'bluebird';
-import { fromJS as immutableFromJS } from 'immutable';
-import {
-  BaseHook,
-  deepGet,
-  isFunction,
-  isObject,
-  tryJSONStringify,
-  tryJSONParse,
-} from 'redibox';
+const later = require('later');
+const Promise = require('bluebird');
+const defaults = require('./defaults');
+const { BaseHook, deepGet, isFunction, isObject, tryJSONStringify, tryJSONParse } = require('redibox');
+const { fromJS } = require('immutable');
 
-export default class MemSet extends BaseHook {
+class MemSet extends BaseHook {
   constructor() {
     super('memset');
     this.data = {};
@@ -27,13 +20,7 @@ export default class MemSet extends BaseHook {
         if (name in target.data) {
           return target.data[name];
         }
-        //
-        // if (name === 'by' && isFunction(name)) {
-        //
-        // }
 
-        // Fixes issue in chrome debugger & jam3/devtool
-        if (name === 'inspect') return undefined;
         return undefined;
       },
     });
@@ -71,7 +58,8 @@ export default class MemSet extends BaseHook {
    */
   static getCacheSeconds(schedule) {
     const _schedule = later.schedule(schedule);
-    return Math.round((_schedule.next() - _schedule.prev()) / 1000 / 2);
+    const seconds = Math.round((_schedule.next() - _schedule.prev()) / 1000 / 2);
+    return seconds <= 0 ? 1 : seconds;
   }
 
   /**
@@ -93,12 +81,12 @@ export default class MemSet extends BaseHook {
 
       if (!possiblePromise.then) {
         this.setData(set.key, possiblePromise, set.immutable);
-        return resolve();
+        return resolve(possiblePromise);
       }
 
       return possiblePromise.then((data) => {
         this.setData(set.key, data, set.immutable);
-        return resolve();
+        return resolve(data);
       }).catch(reject);
     }), set.cacheLifeTime).catch(err => this.log.error(err));
   }
@@ -110,7 +98,7 @@ export default class MemSet extends BaseHook {
    * @param immutable
    */
   setData(key, data, immutable) {
-    this.data[key] = immutable ? immutableFromJS(data) : data;
+    this.data[key] = immutable ? fromJS(data) : data;
     this.timestamp[key] = new Date();
   }
 
@@ -161,12 +149,12 @@ export default class MemSet extends BaseHook {
         return value;
       }
       return promise.then ? promise : promise();
-    }).then(value =>
-      Promise.all([
-        Promise.resolve(value),
-        !foundCache && value ? this.set(key, value, ttl) : Promise.resolve(),
-      ])
-    ).then(results => results[0]);
+    }).then(value => {
+        return Promise.all([
+          Promise.resolve(value),
+          !foundCache && value ? this.set(key, value, ttl) : Promise.resolve(),
+        ])
+    }).then(results => results[0]);
   }
 
   /**
@@ -203,10 +191,6 @@ export default class MemSet extends BaseHook {
       return Promise.reject(new Error('Redis not connected or ready.'));
     }
 
-    if (!ttl) {
-      ttl = this.options.defaultTTL;
-    }
-
     if (typeof val !== 'string' && typeof val !== 'number') {
       if (isObject(val) && val.toObject) {
         val = val.toObject();
@@ -226,3 +210,5 @@ export default class MemSet extends BaseHook {
   }
 
 }
+
+module.exports = MemSet;

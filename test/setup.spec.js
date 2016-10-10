@@ -1,6 +1,6 @@
 global.HOOK_NAME = 'memset';
-import Redibox from 'redibox';
-import UserHook from './../src/hook';
+const Redibox = require('redibox').default;
+const UserHook = require('./../src/hook');
 
 global.methods = {
   getString() {
@@ -15,6 +15,14 @@ global.methods = {
   getArray() {
     return ['foo', 'bar', () => 'baz'];
   },
+  getUnixTimestamp() {
+    return Math.floor(Date.now() / 1000);
+  },
+  getPromise() {
+    return Promise.resolve({
+      foo: 'bar',
+    });
+  },
 };
 
 const config = {
@@ -24,22 +32,39 @@ const config = {
       {
         key: 'string',
         runs: 'methods.getString',
-        refreshInterval: 'every 5 seconds',
+        refreshInterval: 'every 1 seconds',
       },
       {
         key: 'object',
         runs: 'methods.getObject',
-        refreshInterval: 'every 5 seconds',
+        refreshInterval: 'every 1 seconds',
       },
       {
         key: 'number',
         runs: 'methods.getNumber',
-        refreshInterval: 'every 5 seconds',
+        interval: 'every 1 seconds',
       },
       {
         key: 'array',
         runs: 'methods.getArray',
-        refreshInterval: 'every 5 seconds',
+        refreshInterval: 'every 1 seconds',
+      },
+      {
+        key: 'promise',
+        runs: 'methods.getPromise',
+        refreshInterval: 'every 1 seconds',
+      },
+      {
+        key: 'function',
+        runs() {
+          return 'fooFunction';
+        },
+        refreshInterval: 'every 1 seconds',
+      },
+      {
+        key: 'unixTimestamp',
+        runs: 'methods.getUnixTimestamp',
+        refreshInterval: 'every 1 seconds',
       },
     ],
   },

@@ -1,5 +1,5 @@
 /* eslint no-underscore-dangle: 0 */
-import { assert, expect } from 'chai';
+const { assert, expect } = require('chai');
 
 describe('Core', () => {
   it('Should extend redibox BaseHook class and provide a name property', (done) => {
@@ -15,6 +15,13 @@ describe('Core', () => {
 });
 
 describe('Memset', () => {
+  it('Should return undefined', (done) => {
+    const value = Hook.foo;
+
+    expect(value).to.equal(undefined);
+    done();
+  });
+
   it('Should return a string', (done) => {
     const value = Hook.string;
 
@@ -51,6 +58,41 @@ describe('Memset', () => {
     expect(value[2]()).to.equal('baz');
     done();
   });
+
+  it('Should support using a function instead of string', (done) => {
+    const value = Hook.function;
+
+    expect(value).to.be.a('string');
+    expect(value).to.be.equal('fooFunction');
+    done();
+  });
+
+  it('Should return an object from a Promise', (done) => {
+    const value = Hook.promise;
+
+    expect(value).to.be.a('object');
+    expect(value).to.have.property('foo');
+    expect(value.foo).to.equal('bar');
+    done();
+  });
+
+  it('Should update Memset every second', function (done) {
+    this.timeout(4000);
+    let count = 0;
+
+    const getValue = () => {
+      count++;
+      if (count === 3) {
+        return done();
+      }
+      expect(Hook.unixTimestamp).to.equal(Math.floor(Date.now() / 1000));
+      return null;
+    };
+
+    setInterval(getValue, 1000);
+    getValue();
+  });
+
 });
 
 
