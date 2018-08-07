@@ -187,6 +187,7 @@ class MemSet extends BaseHook {
    * @returns {*} No Returns.
    */
   set(key, val, ttl) {
+    debugger;
     if (!this.core.isClientConnected(this.client)) {
       return Promise.reject(new Error('Redis not connected or ready.'));
     }

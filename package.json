@@ -2,10 +2,10 @@
   "name": "redibox-hook-memset",
   "description": "Synchronised data sets stored in memory across all servers - for quick synchronous access to data that is commonly used but not likely to update frequently.",
   "version": "1.0.3",
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "author": "Mike Diarmid",
   "repository": {
-    "github": "https://github.com/redibox/schedule"
+    "github": "https://github.com/redibox/memset"
   },
   "license": "MIT",
   "engines": {
@@ -31,7 +31,7 @@
   "scripts": {
     "debug": "devtool tests.js --no-nt --console -- --verbose",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "prepublish": "npm run lint && npm run build",
+    "prepublish": "npm run lint",
     "lint": "./node_modules/.bin/eslint ./src",
     "test": "node -- ./node_modules/istanbul/lib/cli.js cover --report lcov _mocha"
   },
